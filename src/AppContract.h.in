@@ -1,0 +1,60 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 StackD Solutions
+
+// AppContract.h - GENERATED from AppContract.h.in by CMake (configure_file). Do not edit the
+// generated copy under build/generated/; edit the .in template and re-run CMake.
+//
+// One source of truth for product metadata + the cross-binary contract shared by the three OledCare
+// binaries: the tray app (OledCare.exe), the injected hook (OledCareHook.dll, which runs inside
+// explorer and therefore cannot link the app's code), and the installer (OledCareSetup.exe). They
+// cannot share code, but they MUST agree on these names/ids or the IPC silently breaks (a mismatched
+// event name is a different kernel object; a mismatched registry key loses the setting). Defining
+// them once here is the only thing that keeps them from drifting.
+#pragma once
+
+#include <windows.h>  // CLSID / GUID, wchar_t
+
+// Project version, substituted from CMake project(... VERSION ...). _W is the wide string literal so
+// callers can concatenate it (L"Version " OLEDCARE_VERSION_W).
+#define OLEDCARE_VERSION   "@PROJECT_VERSION@"
+#define OLEDCARE_VERSION_W L"@PROJECT_VERSION@"
+
+namespace contract {
+
+// ---- product identity -------------------------------------------------------
+inline const wchar_t* kProductName = L"OledCare";
+inline const wchar_t* kVendorName  = L"StackD Solutions";
+inline const wchar_t* kVersion     = OLEDCARE_VERSION_W;  // e.g. L"1.0.0"
+
+// Single-instance mutex held by the tray app.
+inline const wchar_t* kMutexName = L"OledCareSingleInstance";
+
+// ---- shared named events ----------------------------------------------------
+// The tray app signals these; the injected hook polls them (and the installer pokes Unload during an
+// uninstall). All manual-reset. These MUST be byte-identical across app + hook + installer.
+inline const wchar_t* kEventDisabled  = L"OledCareDisabled";   // set => behavior OFF (keep tray shown)
+inline const wchar_t* kEventPeek      = L"OledCarePeek";       // set => reveal-hotkey peek (show tray)
+inline const wchar_t* kEventHideAll   = L"OledCareHideAll";    // set => also hide secondary taskbars
+inline const wchar_t* kEventUnload    = L"OledCareUnload";     // set => hook detaches + self-unloads
+inline const wchar_t* kEventConnected = L"OledCareConnected";  // hook sets once advising (app watchdog)
+
+// ---- settings registry (HKCU) ----------------------------------------------
+// The app reads/writes the whole settings key; the hook reads only the three value names below
+// (taskbar mode + fade timings), so those three are part of the cross-binary contract. The app-only
+// value names (theme, hotkey, peek, monitor targets, safe-start) stay private to the settings model.
+inline const wchar_t* kRegPath        = L"Software\\OledCare";
+inline const wchar_t* kRegTaskbarMode = L"TaskbarMode";  // app writes, hook reads
+inline const wchar_t* kRegFadeInMs    = L"FadeInMs";     // app writes, hook reads
+inline const wchar_t* kRegFadeOutMs   = L"FadeOutMs";    // app writes, hook reads
+
+// Run-at-startup (HKCU\...\Run); the app adds/removes its own entry under this value name.
+inline const wchar_t* kRunKey   = L"Software\\Microsoft\\Windows\\CurrentVersion\\Run";
+inline const wchar_t* kRunValue = L"OledCare";
+
+// ---- XAML Diagnostics TAP ----------------------------------------------------
+// The hook registers itself with explorer's XAML diagnostics under this CLSID.
+// {6F3D9E21-7C4A-4B8E-9F12-3A5C7D8E1B40}
+inline constexpr CLSID kTapClsid =
+    { 0x6f3d9e21, 0x7c4a, 0x4b8e, { 0x9f, 0x12, 0x3a, 0x5c, 0x7d, 0x8e, 0x1b, 0x40 } };
+
+}  // namespace contract

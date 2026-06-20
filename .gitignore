@@ -1,0 +1,35 @@
+# Build output
+/build/
+/dist/
+
+# CMake (in case of in-source configuration)
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+_deps/
+
+# Visual Studio / MSBuild generated project files
+.vs/
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+
+# JetBrains IDEs (CLion / IntelliJ)
+.idea/
+
+# Compiler / linker output
+*.obj
+*.exe
+*.dll
+*.lib
+*.exp
+*.pdb
+*.ilk
+
+# Logs
+*.log
+
+# Note: src/icon.ico is intentionally tracked - it is referenced by the .rc files
+# at compile time (generated once via "OledCare.exe --export-icon").

@@ -1,0 +1,5 @@
+// Embed the application manifest (resource id 1, type 24 = RT_MANIFEST).
+1 24 "OledCare.manifest"
+
+// Application icon (lowest ID => Explorer uses it as the .exe file icon).
+1 ICON "icon.ico"

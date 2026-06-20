@@ -1,0 +1,9 @@
+1 24 "setup.manifest"
+
+// Application icon (lowest ID => Explorer uses it as the .exe file icon).
+1 ICON "..\\icon.ico"
+
+// Embedded payload, staged into the resource-compiler include path by CMake. Extracted
+// to the install directory at install time so the installer needs no sibling files.
+100 RCDATA "OledCare.exe"
+101 RCDATA "OledCareHook.dll"
