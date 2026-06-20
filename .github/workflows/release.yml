@@ -1,0 +1,33 @@
+name: release
+
+# When you publish a GitHub release, build the installer on a Windows runner and attach
+# OledCareSetup.exe to that release as a downloadable asset.
+#
+# Usage: GitHub → Releases → "Draft a new release" → pick or create a tag → Publish. This workflow
+# then builds and uploads the installer; it appears under the release's "Assets" a few minutes later.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write   # required to upload assets onto the release
+
+jobs:
+  installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build
+
+      - name: Build (Release)
+        run: cmake --build build --config Release
+
+      - name: Unit tests
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Attach installer to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" build/Release/OledCareSetup.exe --clobber

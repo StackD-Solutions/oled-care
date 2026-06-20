@@ -1,0 +1,24 @@
+name: build
+
+# Builds all binaries and runs the unit-test tripwire on every push / PR. The integration smoke test
+# (scripts/smoke-test.ps1) is NOT run here: it injects into Explorer and needs a real interactive
+# desktop, so it is a local pre-ship check. CI covers compile/link + the pure-logic tests.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B build
+
+      - name: Build (Release)
+        run: cmake --build build --config Release
+
+      - name: Unit tests
+        run: ctest --test-dir build -C Release --output-on-failure
