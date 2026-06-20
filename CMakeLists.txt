@@ -13,6 +13,9 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 # target's include path so the app, the injected hook, and the installer can never diverge.
 set(GENERATED_DIR "${CMAKE_BINARY_DIR}/generated")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/AppContract.h.in" "${GENERATED_DIR}/AppContract.h" @ONLY)
+# RC-safe version metadata header, from the same project(VERSION). The .rc files #include it for their
+# VERSIONINFO blocks, so PE file metadata stays in lockstep with the product version.
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/VersionInfo.h.in" "${GENERATED_DIR}/VersionInfo.h" @ONLY)
 
 # Host app (OledCare.exe): tray icon, menu, and the injector.
 # app.rc embeds the manifest (modern common-controls theming + DPI awareness).
@@ -25,7 +28,7 @@ target_link_options(OledCare PRIVATE /MANIFEST:NO)
 
 # Injected payload (OledCareHook.dll): runs inside explorer.exe; reads the
 # XAML tree via XAML Diagnostics.
-add_library(OledCareHook SHARED src/hook/dllmain.cpp)
+add_library(OledCareHook SHARED src/hook/dllmain.cpp src/hook/hook.rc)
 target_compile_definitions(OledCareHook PRIVATE UNICODE _UNICODE)
 target_include_directories(OledCareHook PRIVATE "${GENERATED_DIR}")
 target_link_libraries(OledCareHook PRIVATE user32 ole32 oleaut32)

@@ -1,0 +1,21 @@
+// SPDX-License-Identifier: GPL-3.0-only
+// Copyright (C) 2026 StackD Solutions
+
+// VersionInfo.h - GENERATED from VersionInfo.h.in by CMake (configure_file). RC-safe: preprocessor
+// #defines only (no C++), so the resource compiler can #include it for the VERSIONINFO blocks in
+// app.rc / setup.rc / hook.rc. The numbers come from CMake project(... VERSION ...) - the same single
+// source as AppContract.h - so the PE file metadata (shown in the file's Properties -> Details, Task
+// Manager, and read by AV/SmartScreen) can never drift from the product version.
+#pragma once
+
+#define OLEDCARE_VER_MAJOR @PROJECT_VERSION_MAJOR@
+#define OLEDCARE_VER_MINOR @PROJECT_VERSION_MINOR@
+#define OLEDCARE_VER_PATCH @PROJECT_VERSION_PATCH@
+
+// FILEVERSION / PRODUCTVERSION take a 4-part comma list; the string fields take dotted text.
+#define OLEDCARE_VER_COMMA  @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,0
+#define OLEDCARE_VER_STRING "@PROJECT_VERSION@"
+
+#define OLEDCARE_COMPANY    "StackD Solutions"
+#define OLEDCARE_PRODUCT    "OledCare"
+#define OLEDCARE_COPYRIGHT  "Copyright (C) 2026 StackD Solutions"

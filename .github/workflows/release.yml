@@ -3,8 +3,9 @@ name: release
 # When you publish a GitHub release, build the installer on a Windows runner and attach
 # OledCareSetup.exe to that release as a downloadable asset.
 #
-# Usage: GitHub → Releases → "Draft a new release" → pick or create a tag → Publish. This workflow
-# then builds and uploads the installer; it appears under the release's "Assets" a few minutes later.
+# Usage: GitHub -> Releases -> "Draft a new release" -> pick or create a tag -> Publish. This workflow
+# then builds (and, if signing is configured, code-signs) the installer and uploads it; it appears
+# under the release's "Assets" a few minutes later.
 on:
   release:
     types: [published]
@@ -15,17 +16,59 @@ permissions:
 jobs:
   installer:
     runs-on: windows-latest
+    env:
+      # --- Code signing (STAGED - off until you add the two secrets below) ---
+      # An unsigned installer that injects into Explorer + drops executables WILL be flagged by
+      # SmartScreen / AV. Authenticode signing (EV cert recommended for instant SmartScreen
+      # reputation) is what actually clears that. To enable, add these repository secrets:
+      #   WINDOWS_PFX_BASE64   - base64 of your code-signing certificate (.pfx)
+      #   WINDOWS_PFX_PASSWORD - the .pfx password
+      # With them set, the app, hook, and installer are all signed; without them this is a no-op and
+      # the release simply ships unsigned.
+      SIGN: ${{ secrets.WINDOWS_PFX_BASE64 != '' }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Configure
         run: cmake -S . -B build
 
-      - name: Build (Release)
-        run: cmake --build build --config Release
+      # Build everything EXCEPT the installer first, so the app + hook can be signed BEFORE the
+      # installer embeds them (it bundles them as resources).
+      - name: Build app + hook + tests (Release)
+        run: cmake --build build --config Release --target OledCare OledCareHook OledCareTests
 
       - name: Unit tests
         run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Import signing certificate
+        if: env.SIGN == 'true'
+        shell: pwsh
+        env:
+          PFX_B64: ${{ secrets.WINDOWS_PFX_BASE64 }}
+        run: |
+          [IO.File]::WriteAllBytes("$env:RUNNER_TEMP\oledcare.pfx", [Convert]::FromBase64String($env:PFX_B64))
+
+      - name: Sign app + hook
+        if: env.SIGN == 'true'
+        shell: pwsh
+        env:
+          PFX_PWD: ${{ secrets.WINDOWS_PFX_PASSWORD }}
+        run: |
+          $tool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" | Sort-Object FullName | Select-Object -Last 1
+          & $tool.FullName sign /f "$env:RUNNER_TEMP\oledcare.pfx" /p $env:PFX_PWD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 build\Release\OledCare.exe build\Release\OledCareHook.dll
+
+      # Build the installer now (it embeds the - now signed - app + hook), then sign the installer too.
+      - name: Build installer (Release)
+        run: cmake --build build --config Release --target OledCareSetup
+
+      - name: Sign installer
+        if: env.SIGN == 'true'
+        shell: pwsh
+        env:
+          PFX_PWD: ${{ secrets.WINDOWS_PFX_PASSWORD }}
+        run: |
+          $tool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" | Sort-Object FullName | Select-Object -Last 1
+          & $tool.FullName sign /f "$env:RUNNER_TEMP\oledcare.pfx" /p $env:PFX_PWD /fd SHA256 /tr http://timestamp.digicert.com /td SHA256 build\Release\OledCareSetup.exe
 
       - name: Attach installer to the release
         env:

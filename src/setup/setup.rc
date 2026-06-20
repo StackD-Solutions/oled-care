@@ -1,7 +1,40 @@
+#include <windows.h>
+#include "VersionInfo.h"
+
 1 24 "setup.manifest"
 
 // Application icon (lowest ID => Explorer uses it as the .exe file icon).
 1 ICON "..\\icon.ico"
+
+// File version metadata (Properties -> Details, Task Manager, read by AV/SmartScreen).
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION    OLEDCARE_VER_COMMA
+ PRODUCTVERSION OLEDCARE_VER_COMMA
+ FILEFLAGSMASK  VS_FFI_FILEFLAGSMASK
+ FILEFLAGS      0x0L
+ FILEOS         VOS_NT_WINDOWS32
+ FILETYPE       VFT_APP
+ FILESUBTYPE    VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName",      OLEDCARE_COMPANY
+            VALUE "FileDescription",  "OledCare Setup"
+            VALUE "FileVersion",      OLEDCARE_VER_STRING
+            VALUE "InternalName",     "OledCareSetup"
+            VALUE "LegalCopyright",   OLEDCARE_COPYRIGHT
+            VALUE "OriginalFilename", "OledCareSetup.exe"
+            VALUE "ProductName",      OLEDCARE_PRODUCT
+            VALUE "ProductVersion",   OLEDCARE_VER_STRING
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
 
 // Embedded payload, staged into the resource-compiler include path by CMake. Extracted
 // to the install directory at install time so the installer needs no sibling files.

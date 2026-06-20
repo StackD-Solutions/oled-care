@@ -1,20 +1,16 @@
 #include <windows.h>
 #include "VersionInfo.h"
 
-// Embed the application manifest (resource id 1, type 24 = RT_MANIFEST).
-1 24 "OledCare.manifest"
-
-// Application icon (lowest ID => Explorer uses it as the .exe file icon).
-1 ICON "icon.ico"
-
-// File version metadata (Properties -> Details, Task Manager, read by AV/SmartScreen).
+// Version metadata for OledCareHook.dll. The DLL is injected into explorer and dropped to disk by the
+// installer, so giving it real Company/Product/Version fields (instead of empty PE metadata) removes
+// one of the heuristics AV engines use to flag unknown binaries.
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION    OLEDCARE_VER_COMMA
  PRODUCTVERSION OLEDCARE_VER_COMMA
  FILEFLAGSMASK  VS_FFI_FILEFLAGSMASK
  FILEFLAGS      0x0L
  FILEOS         VOS_NT_WINDOWS32
- FILETYPE       VFT_APP
+ FILETYPE       VFT_DLL
  FILESUBTYPE    VFT2_UNKNOWN
 BEGIN
     BLOCK "StringFileInfo"
@@ -22,11 +18,11 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName",      OLEDCARE_COMPANY
-            VALUE "FileDescription",  "OledCare"
+            VALUE "FileDescription",  "OledCare taskbar helper"
             VALUE "FileVersion",      OLEDCARE_VER_STRING
-            VALUE "InternalName",     "OledCare"
+            VALUE "InternalName",     "OledCareHook"
             VALUE "LegalCopyright",   OLEDCARE_COPYRIGHT
-            VALUE "OriginalFilename", "OledCare.exe"
+            VALUE "OriginalFilename", "OledCareHook.dll"
             VALUE "ProductName",      OLEDCARE_PRODUCT
             VALUE "ProductVersion",   OLEDCARE_VER_STRING
         END
