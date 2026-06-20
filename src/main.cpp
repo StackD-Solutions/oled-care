@@ -25,6 +25,7 @@
 #include "ui/components/AboutDialog.h"
 #include "ui/components/StyledCombo.h"
 #include "ui/components/SettingsWindow.h"
+#include "ui/components/ScreenDimmer.h"
 #include "ui/Theme.h"
 #include "ui/AppShared.h"
 #include "ui/SettingsModel.h"
@@ -353,6 +354,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int) {
             SetTimer(hwnd, kInjectTimerId, 100, nullptr);  // poll fast so we inject the instant the shell appears
         }
     }
+    ui::StartScreenDimmer(hInstance);  // idle-driven OLED dimmer (no-op until Dim amount is set)
     MSG m;
     while (GetMessageW(&m, nullptr, 0, 0) > 0) {
         TranslateMessage(&m);

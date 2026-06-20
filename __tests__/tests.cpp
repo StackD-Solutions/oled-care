@@ -32,6 +32,20 @@ int main() {
     CHECK(taskbarModeIsClear(1));
     CHECK(taskbarModeIsClear(2));
 
+    // clampDimAmount: 0 = Off; valid percents pass; capped at 90 (never fully black).
+    CHECK(clampDimAmount(0) == 0);
+    CHECK(clampDimAmount(50) == 50);
+    CHECK(clampDimAmount(90) == 90);
+    CHECK(clampDimAmount(100) == 90);
+    CHECK(clampDimAmount(255) == 90);
+
+    // clampDimAfterSeconds: clamp to 10..3600.
+    CHECK(clampDimAfterSeconds(0) == 10);
+    CHECK(clampDimAfterSeconds(10) == 10);
+    CHECK(clampDimAfterSeconds(300) == 300);
+    CHECK(clampDimAfterSeconds(3600) == 3600);
+    CHECK(clampDimAfterSeconds(99999) == 3600);
+
     // formatHotkey: the modifier prefix is the pure logic worth pinning (the key name is the OS's).
     CHECK(formatHotkey(MOD_CONTROL | MOD_ALT, VK_F10).rfind(L"Ctrl + Alt + ", 0) == 0);
     CHECK(formatHotkey(MOD_CONTROL, 'A').rfind(L"Ctrl + ", 0) == 0);

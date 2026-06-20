@@ -19,7 +19,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/VersionInfo.h.in" "${GENERATED_D
 
 # Host app (OledCare.exe): tray icon, menu, and the injector.
 # app.rc embeds the manifest (modern common-controls theming + DPI awareness).
-add_executable(OledCare WIN32 src/main.cpp src/injector.cpp src/service.cpp src/ui/Theme.cpp src/ui/SettingsModel.cpp src/ui/components/AppIcon.cpp src/ui/components/TrayMenu.cpp src/ui/components/AboutDialog.cpp src/ui/components/StyledCombo.cpp src/ui/components/SettingsWindow.cpp src/app.rc)
+add_executable(OledCare WIN32 src/main.cpp src/injector.cpp src/service.cpp src/ui/Theme.cpp src/ui/SettingsModel.cpp src/ui/components/AppIcon.cpp src/ui/components/TrayMenu.cpp src/ui/components/AboutDialog.cpp src/ui/components/StyledCombo.cpp src/ui/components/SettingsWindow.cpp src/ui/components/ScreenDimmer.cpp src/app.rc)
 target_compile_definitions(OledCare PRIVATE UNICODE _UNICODE)
 target_include_directories(OledCare PRIVATE src "${GENERATED_DIR}")
 target_link_libraries(OledCare PRIVATE user32 shell32 gdi32 gdiplus dwmapi uxtheme msimg32)

@@ -57,6 +57,12 @@ int GetPeekSeconds();
 void SetPeekSeconds(int seconds);
 void RunElevated(const wchar_t* args);
 
+// Screen Dimming: idle-dim amount (0 = Off, else % of black overlay) + the idle threshold.
+int GetDimAmount();
+void SetDimAmount(int percent);
+int GetDimAfterSeconds();
+void SetDimAfterSeconds(int seconds);
+
 // Live settings state.
 extern int g_themeMode;          // 0 = system, 1 = light, 2 = dark
 extern UINT g_hotkeyMods;        // reveal-hotkey modifiers

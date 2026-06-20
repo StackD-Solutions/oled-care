@@ -37,17 +37,18 @@ enum CtrlId : UINT {
     IDC_STARTUP = 2001, IDC_HIDE = 2002, IDC_HIPRIO_BTN = 2003, IDC_PROTECT = 2004,
     IDC_SAFEHIBER = 2005, IDC_HELP_PROTECT = 2006, IDC_HELP_HIBER = 2007, IDC_HOTKEY = 2008,
     IDC_PEEKSECS = 2009, IDC_THEME = 2010, IDC_FADEIN = 2012, IDC_FADEOUT = 2013,
-    IDC_TASKBAR = 2014, IDC_HELP_STARTUP = 2015, IDC_TASKBAR_MON = 2016, IDC_HIDE_TARGET = 2017
+    IDC_TASKBAR = 2014, IDC_HELP_STARTUP = 2015, IDC_TASKBAR_MON = 2016, IDC_HIDE_TARGET = 2017,
+    IDC_DIM_AMOUNT = 2018, IDC_DIM_AFTER = 2019
 };
 
 const int kCheckCol = 270;    // x of the aligned checkbox/button column (DIPs)
-const int kRow1Center = 410;  // vertical center of the "Start with Windows" row (DIPs)
+const int kRow1Center = 518;  // vertical center of the "Start with Windows" row (DIPs)
 
 // All settings-window layout metrics, in DIPs (scaled by DPI at use). Single source of truth so the
 // controls (WM_CREATE) and the section group boxes (WM_PAINT) can never drift apart. Each section's
 // box spans [Top, Bottom]; each r* is a row's vertical center.
 namespace Layout {
-    const int WinWidth = 500, WinHeight = 610;
+    const int WinWidth = 500, WinHeight = 718;
 
     const int SysTrayTop = 24, SysTrayBottom = 254;
     const int rHide = 50, rHideAll = 86, rFadeIn = 122, rFadeOut = 158, rHotkey = 194, rPeek = 230;
@@ -55,11 +56,14 @@ namespace Layout {
     const int TaskbarTop = 276, TaskbarBottom = 362;
     const int rTaskbar = 302, rTaskbarMon = 338;
 
-    const int StartupTop = 384, StartupBottom = 514;
-    const int r1 = kRow1Center, r2 = 450, r3 = 490;
+    const int DimTop = 384, DimBottom = 470;
+    const int rDimAmount = 410, rDimAfter = 446;
 
-    const int AppearanceTop = 536, AppearanceBottom = 586;
-    const int rTheme = 562;
+    const int StartupTop = 492, StartupBottom = 622;
+    const int r1 = kRow1Center, r2 = 558, r3 = 598;
+
+    const int AppearanceTop = 644, AppearanceBottom = 694;
+    const int rTheme = 670;
 }
 
 bool g_serviceOn = false;        // high-priority (service) state for the button
@@ -116,7 +120,7 @@ void ApplySettingsTheme(HWND hwnd) {
     BOOL darkAttr = g_effectiveDark ? TRUE : FALSE;
     DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &darkAttr, sizeof(darkAttr));
     AllowWindowDarkMode(hwnd, g_effectiveDark);
-    const UINT comboIds[] = { IDC_PEEKSECS, IDC_THEME, IDC_FADEIN, IDC_FADEOUT, IDC_TASKBAR, IDC_TASKBAR_MON, IDC_HIDE_TARGET };
+    const UINT comboIds[] = { IDC_PEEKSECS, IDC_THEME, IDC_FADEIN, IDC_FADEOUT, IDC_TASKBAR, IDC_TASKBAR_MON, IDC_HIDE_TARGET, IDC_DIM_AMOUNT, IDC_DIM_AFTER };
     for (UINT cid : comboIds) {
         SetWindowTheme(GetDlgItem(hwnd, cid), g_effectiveDark ? L"DarkMode_CFD" : L"CFD", nullptr);
     }
@@ -268,6 +272,43 @@ LRESULT CALLBACK SettingsProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             }
         }
 
+        // Screen Dimming: how dark to go when idle, and after how long.
+        label(L"Dim amount:", rDimAmount, 180);
+        HWND dimCombo = ui::CreateStyledCombo(hwnd, IDC_DIM_AMOUNT, kCheckCol, rDimAmount, 180);
+        {
+            const wchar_t* names[] = { L"Off", L"25%", L"50%", L"75%", L"90%" };
+            const int vals[] = { 0, 25, 50, 75, 90 };
+            int cur = GetDimAmount();
+            for (int i = 0; i < 5; ++i) {
+                int idx = static_cast<int>(SendMessageW(dimCombo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(names[i])));
+                SendMessageW(dimCombo, CB_SETITEMDATA, idx, vals[i]);
+                if (vals[i] == cur) {
+                    SendMessageW(dimCombo, CB_SETCURSEL, idx, 0);
+                }
+            }
+            if (SendMessageW(dimCombo, CB_GETCURSEL, 0, 0) == CB_ERR) {
+                SendMessageW(dimCombo, CB_SETCURSEL, 0, 0);  // default to Off
+            }
+        }
+
+        label(L"Dim after:", rDimAfter, 180);
+        HWND afterCombo = ui::CreateStyledCombo(hwnd, IDC_DIM_AFTER, kCheckCol, rDimAfter, 180);
+        {
+            const wchar_t* names[] = { L"1 minute", L"2 minutes", L"5 minutes", L"10 minutes", L"15 minutes", L"30 minutes" };
+            const int vals[] = { 60, 120, 300, 600, 900, 1800 };
+            int cur = GetDimAfterSeconds();
+            for (int i = 0; i < 6; ++i) {
+                int idx = static_cast<int>(SendMessageW(afterCombo, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(names[i])));
+                SendMessageW(afterCombo, CB_SETITEMDATA, idx, vals[i]);
+                if (vals[i] == cur) {
+                    SendMessageW(afterCombo, CB_SETCURSEL, idx, 0);
+                }
+            }
+            if (SendMessageW(afterCombo, CB_GETCURSEL, 0, 0) == CB_ERR) {
+                SendMessageW(afterCombo, CB_SETCURSEL, 2, 0);  // default to 5 minutes
+            }
+        }
+
         // Row 1: "Start with Windows" checkbox and the high-priority button share the control
         // column. When the service is on the checkbox is hidden and the button takes its place.
         help(r1, IDC_HELP_STARTUP);
@@ -374,6 +415,7 @@ LRESULT CALLBACK SettingsProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         using namespace Layout;
         group(SysTrayTop, SysTrayBottom, L"System Tray");
         group(TaskbarTop, TaskbarBottom, L"Taskbar");
+        group(DimTop, DimBottom, L"Screen Dimming");
         group(StartupTop, StartupBottom, L"Automatic startup");
         group(AppearanceTop, AppearanceBottom, L"Appearance");
         SelectObject(dc, of);
@@ -486,6 +528,8 @@ LRESULT CALLBACK SettingsProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             case IDC_TASKBAR:     SetTaskbarMode(static_cast<TaskbarMode>(data)); return 0;
             case IDC_TASKBAR_MON: SetTaskbarMonitor(static_cast<int>(data)); return 0;
             case IDC_HIDE_TARGET: SetHideMonitor(static_cast<int>(data)); ApplyHideAllEvent(); return 0;
+            case IDC_DIM_AMOUNT:  SetDimAmount(static_cast<int>(data)); return 0;
+            case IDC_DIM_AFTER:   SetDimAfterSeconds(static_cast<int>(data)); return 0;
             default:              return 0;
             }
         }

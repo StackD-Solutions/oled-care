@@ -263,6 +263,20 @@ void SetPeekSeconds(int seconds) {
     SetRegDword(L"PeekSeconds", static_cast<DWORD>(seconds));
 }
 
+// Screen Dimming. Stored in HKCU. Dim amount defaults to 0 (Off); idle threshold to 300s.
+int GetDimAmount() {
+    return clampDimAmount(GetRegDword(L"DimAmount", 0));
+}
+void SetDimAmount(int percent) {
+    SetRegDword(L"DimAmount", static_cast<DWORD>(percent));
+}
+int GetDimAfterSeconds() {
+    return clampDimAfterSeconds(GetRegDword(L"DimAfterSeconds", 300));
+}
+void SetDimAfterSeconds(int seconds) {
+    SetRegDword(L"DimAfterSeconds", static_cast<DWORD>(seconds));
+}
+
 // Re-launch ourselves elevated to run a privileged mode (service install/uninstall, etc.).
 void RunElevated(const wchar_t* args) {
     wchar_t exe[MAX_PATH] = {};

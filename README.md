@@ -21,6 +21,7 @@ It ships as a single self-contained installer and runs quietly in the background
 
 - **System tray hiding** — the clock and the always-on status icons sit in one fixed, bright spot indefinitely, which makes them prime burn-in candidates. OledCare keeps them hidden and reveals them on hover (move the cursor to the right edge of the taskbar), so they're only lit when you reach for them.
 - **Clear taskbar** — make the taskbar background fully transparent, so the bright bar fixed along the screen edge isn't continuously lit into the panel — without changing any Windows appearance settings.
+- **Screen dimming** — when you step away, the screen gently dims after a chosen idle time and snaps back the instant you move the mouse or press a key, so a static image isn't held at full brightness while you're gone. It won't dim over a fullscreen game or video.
 
 _More OLED-care features are planned for the near future._
 
@@ -63,6 +64,8 @@ All settings live in the Settings window and persist to `HKCU\Software\OledCare`
 | **Peek duration** | 2 / 3 / 5 / 10 s | How long the peek stays open before auto-hiding (clamped 1–60 s) |
 | **Color** (taskbar) | Normal / Clear | Leave the taskbar as-is, or make its background transparent |
 | **Target** (taskbar) | All monitors / Monitor N | Which display the taskbar color applies to |
+| **Dim amount** | Off / 25% / 50% / 75% / 90% | How far the screen dims when idle (Off disables dimming) |
+| **Dim after** | 1 / 2 / 5 / 10 / 15 / 30 min | Idle time with no mouse/keyboard input before the screen dims |
 | **Start with Windows** | on / off | Launch at sign-in via the startup list |
 | **Set high priority** | on / off | Install a service that starts OledCare earlier at boot (requires elevation) |
 | **Protect against crashes** | on / off | Let the high-priority service relaunch OledCare automatically |

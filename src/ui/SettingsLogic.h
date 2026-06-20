@@ -28,6 +28,16 @@ inline bool taskbarModeIsClear(DWORD v) {
     return v != 0;
 }
 
+// Screen Dimming. Dim amount is the percentage of black overlay (0 = Off); capped at 90 so the
+// screen never goes fully black. The idle threshold is clamped to a sane 10s..1h.
+inline int clampDimAmount(DWORD v) {
+    return static_cast<int>(v > 90 ? 90 : v);
+}
+
+inline int clampDimAfterSeconds(DWORD v) {
+    return static_cast<int>(v < 10 ? 10 : (v > 3600 ? 3600 : v));
+}
+
 // Human-readable hotkey, e.g. "Ctrl + Alt + F10". The modifier prefix is pure logic; the key name
 // comes from the OS (GetKeyNameTextW), with a 0xNN hex fallback for keys it cannot name.
 inline std::wstring formatHotkey(UINT mods, UINT vk) {
