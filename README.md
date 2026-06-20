@@ -1,7 +1,7 @@
 <!--suppress HtmlDeprecatedAttribute -->
 <h1 align="center">
   <br>
-  <a href="https://www.stackd-solutions.io"><img src="https://raw.githubusercontent.com/StackD-Solutions/OledCare/main/docs/logo.svg" alt="StackD Solutions" width="200"></a>
+  <a href="https://www.stackd-solutions.io"><img src="https://raw.githubusercontent.com/StackD-Solutions/oled-care/main/docs/logo.svg" alt="StackD Solutions" width="200"></a>
   <br>OledCare
   <br>
 </h1>
