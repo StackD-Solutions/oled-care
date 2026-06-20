@@ -37,7 +37,7 @@ It ships as a single self-contained installer and runs quietly in the background
 
 ## Installation
 
-Download `OledCareSetup.exe` from the [latest release](https://github.com/StackD-Solutions/OledCare/releases) and run it. The installer:
+Download `OledCareSetup.exe` from the [latest release](https://github.com/StackD-Solutions/oled-care/releases) and run it. The installer:
 
 - installs to `Program Files\StackD Solutions\OledCare`
 - adds **OledCare** and **Uninstall OledCare** shortcuts to the Start Menu
